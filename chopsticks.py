@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import numpy as np
+
 PLAYER_1 = 'p1'
 PLAYER_2 = 'p2'
 SPLIT = 's'
@@ -14,6 +16,27 @@ Moving examples-
 INVALID_MOVE                  = 'Invalid move, possible moves are: ' + str(POSSIBLE_MOVES)
 INVALID_CANNOT_SPLIT          = 'Bad move. Cannot split.'
 INVALID_NO_FINGERS_BEING_USED = 'Bad move.  Hand must have some fingers to be used'
+
+# isomorphisms, taken from https://en.wikipedia.org/wiki/Chopsticks_(hand_game), however includes with adding to self
+isomorphs = np.array(( (2,1,1,1),
+                       #(?,?,0,0), discuss as group
+                       (2,1,4,1),
+                       (2,1,2,0),
+                       (3,1,1,1),
+                       (3,2,1,1),
+                       (3,2,4,1),
+                       (3,3,3,0),
+                       (3,1,1,0),
+                       (3,2,1,0),
+                       (3,3,1,0),
+                       (1,0,1,0),
+                       (2,0,1,0),
+                       (3,0,1,0),
+                       (2,1,1,0),
+                       (4,2,1,0),
+                       (4,4,1,0),
+                       (1,1,1,0)
+                       ))
 
 class Player:
   def __init__(self):
@@ -139,6 +162,8 @@ class ChopsticksGame:
       winResult = self.doTurn(move)
       if winResult:
         break
+
+  
 
 
 if __name__ == '__main__':
