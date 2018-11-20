@@ -13,7 +13,6 @@ Moving examples-
 
 INVALID_MOVE                  = 'Invalid move, possible moves are: ' + str(POSSIBLE_MOVES)
 INVALID_CANNOT_SPLIT          = 'Bad move. Cannot split.'
-INVALID_NO_ROLLOVER           = 'Bad move.  Cannot add past 5'
 INVALID_NO_FINGERS_BEING_USED = 'Bad move.  Hand must have some fingers to be used'
 
 class Player:
@@ -57,8 +56,6 @@ class ChopsticksGame:
     if move != SPLIT: 
       playerHand = int(move[0])
       opponentHand = int(move[1])
-      if player.hands[playerHand] + opponentPlayer.hands[opponentHand] > 5:
-        return INVALID_NO_ROLLOVER
       if player.hands[playerHand] == 0 or opponentPlayer.hands[opponentHand] == 0:
         return INVALID_NO_FINGERS_BEING_USED
 
