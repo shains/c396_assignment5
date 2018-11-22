@@ -24,8 +24,9 @@ class TestChopsticks(unittest.TestCase):
     self.game.players[PLAYER_1].hands = [4,0]
     self.game.players[PLAYER_2].hands = [4,0]
     self.game.playerToMove = PLAYER_1
-    validationResponse = self.game.checkIfMoveIsValid('00')
-    self.assertEqual(INVALID_NO_ROLLOVER, validationResponse)
+    self.game.doTurn('00')
+    winningPlayer = self.game.checkForWinningPlayer()
+    self.assertEqual(winningPlayer, PLAYER_1)
 
 
   def testValidateInvalidMove(self):
@@ -36,14 +37,7 @@ class TestChopsticks(unittest.TestCase):
     self.assertEqual(INVALID_MOVE, validationResponse)
 
 
-  def testValidateCannotSplit1(self):
-    self.game.players[PLAYER_1].hands = [3,0]
-    self.game.playerToMove = PLAYER_1
-    validationResponse = self.game.checkIfMoveIsValid('s')
-    self.assertEqual(INVALID_CANNOT_SPLIT, validationResponse)
-
-
-  def testValidateCannotSplit2(self):
+  def testValidateCannotSplit(self):
     self.game.players[PLAYER_1].hands = [4,2]
     self.game.playerToMove = PLAYER_1
     validationResponse = self.game.checkIfMoveIsValid('s')
@@ -70,8 +64,23 @@ class TestChopsticks(unittest.TestCase):
     self.game.players[PLAYER_1].hands = [4,0]
     self.game.players[PLAYER_2].hands = [1,1]
     self.game.playerToMove = PLAYER_1
-    self.game.doTurn('s')
+    self.game.doTurn('s 22')
     self.assertEqual(self.game.players[PLAYER_1].hands, [2,2])
+
+  def testSplit2(self):
+    self.game.players[PLAYER_1].hands = [4,0]
+    self.game.players[PLAYER_2].hands = [1,1]
+    self.game.playerToMove = PLAYER_1
+    self.game.doTurn('s 13')
+    self.assertEqual(self.game.players[PLAYER_1].hands, [1,3])
+
+  def testValidateHittingAnEmptyHand(self):
+    self.game.players[PLAYER_1].hands = [4,0]
+    self.game.players[PLAYER_2].hands = [1,1]
+    self.game.playerToMove = PLAYER_1
+    validationResponse = self.game.checkIfMoveIsValid('s 12')
+    self.assertEqual(INVALID_CANNOT_SPLIT, validationResponse)
+
 
 
 def suite():

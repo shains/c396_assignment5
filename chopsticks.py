@@ -8,9 +8,12 @@ SPLIT = 's'
 POSSIBLE_MOVES = ['01','00','10','11',SPLIT]
 HELP_TEXT = """
 Moving examples- 
-  Using my 0 index hand, hit other player's 1 index hand: 01
-  Using my 1 index hand, hit other player's 1 index hand: 11
-  Split: s
+  Using my 0 index hand, hit other player's 1 index hand: 
+    01
+  Using my 1 index hand, hit other player's 1 index hand: 
+    11
+  Split my 40 hand into 1 3:
+    s 13
 """
 
 INVALID_MOVE                  = 'Invalid move, possible moves are: ' + str(POSSIBLE_MOVES)
@@ -42,15 +45,25 @@ class Player:
   def __init__(self):
     self.hands = [1,1]
 
-  def canSplit(self):
-    return self.aHandIsEven() and self.aHandIsEmpty()
+  def canSplit(self, endSplitState):
 
-  def aHandIsEven(self):
-    return (self.hands[0] % 2 == 0 and self.hands[0] != 0) \
-        or (self.hands[1] % 2 == 0 and self.hands[1] != 0)
+    emptyHandIndex = None
+    nonEmptyHandIndex = None
+    if self.hands[0] == 0:
+      emptyHandIndex = 0
+      nonEmptyHandIndex = 1
+    if self.hands[1] == 0:
+      emptyHandIndex = 1
+      nonEmptyHandIndex = 0
+    if self.hands[nonEmptyHandIndex] <= 1:
+      return False
+    if int(endSplitState[0]) + int(endSplitState[1]) != self.hands[nonEmptyHandIndex]:
+      return False
+    return True
 
-  def aHandIsEmpty(self):
-    return self.hands[0] == 0 or self.hands[1] == 0
+  def isValidSplitMove(self, move):
+    nonEmptyHand = self.hands[1] if self.hands[0] == 0 else self.hands[0]
+
 
 
 class ChopsticksGame:
@@ -63,24 +76,32 @@ class ChopsticksGame:
   def printGameState(self):
     print('p1:' + str(self.players[PLAYER_1].hands) + '  p2:' + str(self.players[PLAYER_2].hands) + '  Player to move: ' + self.playerToMove)
 
-
   def opponent(self, player):
     if player == PLAYER_1:
       return PLAYER_2
     return PLAYER_1
 
   def checkIfMoveIsValid(self, move):
-    if move not in POSSIBLE_MOVES:
+    main_move = move.split(' ')[0]
+    if main_move not in POSSIBLE_MOVES:
       return INVALID_MOVE
     player = self.players[self.playerToMove]
     opponentPlayer = self.players[self.opponent(self.playerToMove)]
-    if move == SPLIT and not player.canSplit() :
-      return INVALID_CANNOT_SPLIT
-    if move != SPLIT: 
-      playerHand = int(move[0])
-      opponentHand = int(move[1])
-      if player.hands[playerHand] == 0 or opponentPlayer.hands[opponentHand] == 0:
-        return INVALID_NO_FINGERS_BEING_USED
+    #Split moves
+    if main_move == SPLIT:
+      try:
+        endSplitState = move.split(' ')[1]
+        if not player.canSplit(endSplitState) :
+          return INVALID_CANNOT_SPLIT
+      except:
+        return INVALID_CANNOT_SPLIT
+      return
+
+    #Regular moves
+    playerHand = int(main_move[0])
+    opponentHand = int(main_move[1])
+    if player.hands[playerHand] == 0 or opponentPlayer.hands[opponentHand] == 0:
+      return INVALID_NO_FINGERS_BEING_USED
 
   def inputMove(self):
     #Swap this function out with AI or use it to build tree - but be sure to use validation 
@@ -96,18 +117,18 @@ class ChopsticksGame:
         break
     return move
 
-
   def doMove(self, move):
-    if move == SPLIT:
+    main_move = move.split(' ')[0]
+    if main_move == SPLIT:
+      endSplitState = move.split(' ')[1]
       fromHandIndex = 0 if self.players[self.playerToMove].hands[1] == 0 else 1
-      splitAmount = int(self.players[self.playerToMove].hands[fromHandIndex] / 2)
-      self.players[self.playerToMove].hands[0] = splitAmount
-      self.players[self.playerToMove].hands[1] = splitAmount
+      self.players[self.playerToMove].hands[0] = int(endSplitState[0])
+      self.players[self.playerToMove].hands[1] = int(endSplitState[1])
     else:
-      playerHand = int(move[0])
-      opponentHand = int(move[1])
+      playerHand = int(main_move[0])
+      opponentHand = int(main_move[1])
       self.players[self.opponent(self.playerToMove)].hands[opponentHand] += self.players[self.playerToMove].hands[playerHand]
-      if self.players[self.opponent(self.playerToMove)].hands[opponentHand] == 5:
+      if self.players[self.opponent(self.playerToMove)].hands[opponentHand] >= 5:
         self.players[self.opponent(self.playerToMove)].hands[opponentHand] = 0
 
   def switchPlayerToMove(self):
@@ -132,10 +153,9 @@ class ChopsticksGame:
 
   def playerHasValidMove(self):
     for move in POSSIBLE_MOVES:
-      if self.checkIfMoveIsValid(move):
+      if not self.checkIfMoveIsValid(move):
         return True
     return False
-
 
   def saveGameStateHistory(self):
     self.gameStateHistory += self.gameState()
