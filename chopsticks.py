@@ -94,7 +94,6 @@ class ChopsticksGame:
     if main_move == SPLIT:
       try:
         endSplitState = move.split(' ')[1]
-        print("End split state:",endSplitState)
         if not player.canSplit(endSplitState) :
           return INVALID_CANNOT_SPLIT
       except:

@@ -41,6 +41,7 @@ class TestChopsticks(unittest.TestCase):
     self.game.players[PLAYER_1].hands = [4,2]
     self.game.playerToMove = PLAYER_1
     validationResponse = self.game.checkIfMoveIsValid('s')
+    print(validationResponse)
     self.assertEqual(INVALID_CANNOT_SPLIT, validationResponse)
 
 
@@ -73,6 +74,13 @@ class TestChopsticks(unittest.TestCase):
     self.game.playerToMove = PLAYER_1
     self.game.doTurn('s 13')
     self.assertEqual(self.game.players[PLAYER_1].hands, [1,3])
+    
+  def testDisallowMirrorSplit(self):
+    self.game.players[PLAYER_1].hands = [4,0]
+    self.game.players[PLAYER_2].hands = [1,1]
+    self.game.playerToMove = PLAYER_1
+    validationResponse = self.game.checkIfMoveIsValid('s 04')
+    self.assertEqual(INVALID_CANNOT_SPLIT, validationResponse)   
 
   def testValidateHittingAnEmptyHand(self):
     self.game.players[PLAYER_1].hands = [4,0]
